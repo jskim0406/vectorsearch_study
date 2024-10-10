@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: zookeeper
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes  # 익명 로그인을 허용하여 Zookeeper가 시작되도록 설정
+    ports:
+      - "2181:2181"
+    networks:
+      - kafka-net
+
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: kafka
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    networks:
+      - kafka-net
+
+  python-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: python-app
+    volumes:
+      - /home/js.kim/search:/usr/src/app
+    ports:
+      - "8000:8000"  # 예: 웹 서버를 위한 포트 매핑
+      - "8888:8888"  # 예: Jupyter Notebook을 위한 포트 매핑
+    networks:
+      - elastic
+      - kafka-net
+    depends_on:
+      - kafka
+      - zookeeper
+
+networks:
+  kafka-net:
+    driver: bridge
+  elastic:
+    external: true  # 이미 존재하는 elastic 네트워크를 사용
