@@ -4,20 +4,23 @@
 ### 2024.10.11(금)
 #### 현재까지 진행 상황
 - (완료) elasticsearch index `abo_products_selected` 생성
-  - `### 1. **프로젝트 세팅 및 기본 환경 구축**`
-  - `### 2. **데이터셋 이해 및 전처리 계획 수립**`
-  - `### 3. **Elasticsearch 인덱스 설계, 매핑 정의, 인덱싱**`
+  - `### 1. 프로젝트 세팅 및 기본 환경 구축`
+  - `### 2. 데이터셋 이해 및 전처리 계획 수립`
+  - `### 3. Elasticsearch 인덱스 설계, 매핑 정의, 인덱싱`
 
 - (진행 중) 
-  - `### 4. **배치 인덱스 파이프라인 구축**`
-  - `### 5. **Kafka를 활용한 업데이트 파이프라인 설계 및 테스트**`
+  - `### 4. 배치 인덱스 파이프라인 구축`
+  - `### 5. Kafka를 활용한 업데이트 파이프라인 설계 및 테스트`
 
 #### 인덱싱 결과
 - 총 인덱싱 문서 수: 20,600개
-  - `product_description`, `item_keywords` 모두 `language_tag`가 `en_US`인 경우의 document만 indexing 수행
-    - indexing 대상 field는 총 11개로 선별(제품 검색에 유용할 것으로 판단되는 field를 선택)
-    - nested 구조의 document는 'value'값만 추출해 document로 indexing
-      - `"brand": "[{'language_tag': 'en_US', 'value': 'Signature Design by Ashley'}]"`의 경우, `"brand": "Signature Design by Ashley"`로 document를 구성해 indexing 수행
+- 인덱싱 Rule
+  1. indexing 대상 field: 총 11개로 선별(제품 검색에 유용할 것으로 판단되는 field를 선택)
+  2. `en_US` 필터링: `product_description`, `item_keywords` 모두 `language_tag`가 `en_US`인 경우만 인덱싱
+  3. nested 구조의 document는 'value'값만 추출해 document로 indexing
+    - 예
+      - `"brand": "[{'language_tag': 'en_US', 'value': 'Signature Design by Ashley'}]"`
+        - `"brand": "Signature Design by Ashley"`로 document를 구성해 indexing 수행
 
 #### 참고 사항
 ##### indexing 대상 field 11개
@@ -116,7 +119,6 @@ INFO:ESInfoLogger:문서 ID: B074H5LYFZ
 ---
 
 ## 1. 환경 준비
-
 ### 1.1 Docker 설치 확인
 
 Ubuntu에 Docker가 이미 설치되어 있는지 확인합니다.
